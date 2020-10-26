@@ -12,7 +12,7 @@ def get_conn():
                            password="000000",
                            host="193.123.233.236",
                            port=3306,
-                           database="testPetland")
+                           database="Petland")
     return conn
 
 

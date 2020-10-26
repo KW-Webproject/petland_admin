@@ -7,13 +7,14 @@ def get_conn():
                            password="000000",
                            host="193.123.233.236",
                            port=3306,
-                           database="testPetland")
+                           database="Petland")
     return conn
 
 
 def show_res():
     result = ""
-    sql = get_sql()
+    sql = get_sql_form()
+    print(sql)
     try:
         conn = get_conn()
         cur = conn.cursor()
@@ -21,9 +22,16 @@ def show_res():
         if sql[:6] == 'DELETE':
             cur.execute(sql)
             conn.commit()
+            sql = """SELECT r.r_num, u.u_name, r.r_date, r.r_time, r.pet, r.service, r.r_p_id
+                FROM reservation r
+                LEFT JOIN user_info u ON u.u_id = r.r_u_id
+                ORDER BY r.r_num
+            """
 
-        sql_all = sql
-        cur.execute(sql_all)
+        # conn.commit()후 변경 사항을 출력하기위한 쿼리 cmd가 없을 시에는
+        # 현재 db값을 출력
+        sql_base = sql
+        cur.execute(sql_base)
         for r_num, u_name, r_date, r_time, pet, service, r_p_id in cur:
             result += "<tr>"
             result += "<td>" + str(r_num) + "</td>"
@@ -39,6 +47,7 @@ def show_res():
 
         # print(result)
     except mariadb.Error as e:
+        # err = "예약 건수가 남아있어 삭제 할 수 없습니다."
         print("ERR: {}".format(e))
     finally:
         if conn:
@@ -48,12 +57,20 @@ def show_res():
 
 def show_cus():
     result = ""
-    sql = "SELECT * FROM user_info"
+    sql = get_sql_customer()
+    print(sql)
     try:
         conn = get_conn()
         cur = conn.cursor()
 
-        cur.execute(sql)
+        if sql[:6] == 'DELETE':
+            cur.execute(sql)
+            conn.commit()
+            sql = """SELECT * FROM pet_sitter"""
+
+        # sql = "SELECT * FROM user_info"
+        sql_base = sql
+        cur.execute(sql_base)
         for u_id, u_name, u_phone, u_address in cur:
             result += "<tr>"
             result += "<td>" + str(u_id) + "</td>"
@@ -73,12 +90,21 @@ def show_cus():
 
 def show_staff():
     result = ""
-    sql = "SELECT * FROM pet_sitter"
+    sql = get_sql_staff()
+    print(sql)
     try:
         conn = get_conn()
         cur = conn.cursor()
 
-        cur.execute(sql)
+        if sql[:6] == 'DELETE':
+            cur.execute(sql)
+            conn.commit()
+            sql = "SELECT * FROM pet_sitter"
+
+        # sql = "SELECT * FROM pet_sitter"
+        sql_base = sql
+        print(sql)
+        cur.execute(sql_base)
         for p_id, p_name, p_phone, p_local in cur:
             result += "<tr>"
             result += "<td>" + str(p_id) + "</td>"
@@ -97,7 +123,7 @@ def show_staff():
     return result
 
 
-def get_sql():
+def get_sql_form():
     cmd = request.args.get('cmd')
 
     if cmd == 'delete':
@@ -106,16 +132,52 @@ def get_sql():
         """.format(int(r_num))
     elif cmd == 'search':
         name = request.args.get('name')
-        sql = """SELECT r.r_num, u.u_name, r.r_date, r.r_time, r.pet, r.service, r.r_p_id 
-            FROM testPetland.reservation r
-            LEFT JOIN testPetland.user_info u ON u.u_id = r.r_u_id
+        print(name)
+        print(type(name))
+        sql = """SELECT r.r_num, u.u_name, r.r_date, r.r_time, r.pet, r.service, r.r_p_id
+            FROM reservation r
+            LEFT JOIN user_info u ON u.u_id = r.r_u_id
             WHERE u.u_name="{}"
         """.format(name)
     else:
-        sql = """SELECT r.r_num, u.u_name, r.r_date, r.r_time, r.pet, r.service, r.r_p_id 
+        sql = """SELECT r.r_num, u.u_name, r.r_date, r.r_time, r.pet, r.service, r.r_p_id
         FROM reservation r
         LEFT JOIN user_info u ON u.u_id = r.r_u_id
         ORDER BY r.r_num
     """
+
+    return sql
+
+
+def get_sql_customer():
+    cmd = request.args.get('cmd')
+
+    if cmd == 'delete':
+        u_id = request.args.get('u_id')
+        sql = """DELETE FROM user_info WHERE u_id={}
+        """.format(int(u_id))
+    elif cmd == 'search':
+        name = request.args.get('name')
+        sql = """SELECT * FROM user_info WHERE u_name="{}"
+        """.format(name)
+    else:
+        sql = """SELECT * FROM user_info"""
+
+    return sql
+
+
+def get_sql_staff():
+    cmd = request.args.get('cmd')
+
+    if cmd == 'delete':
+        p_id = request.args.get('p_id')
+        sql = """DELETE FROM pet_sitter WHERE p_id={}
+        """.format(int(p_id))
+    elif cmd == 'search':
+        name = request.args.get('name')
+        sql = """SELECT * FROM pet_sitter WHERE p_name="{}"
+        """.format(name)
+    else:
+        sql = """SELECT * FROM pet_sitter"""
 
     return sql
