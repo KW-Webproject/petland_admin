@@ -53,13 +53,10 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>예약번호</th>
+                            <th>회원번호</th>
                             <th>고객이름</th>
-                            <th>예약날짜</th>
-                            <th>시간</th>
-                            <th>반려동물</th>
-                            <th>서비스</th>
-                            <th>펫시터ID</th>
+                            <th>연락처</th>
+                            <th>주소</th>
                             <th>삭제</th>
                         </tr>
                     </thead>
@@ -69,7 +66,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <form action="/form" method="GET" class="input">
+                <form action="/customer" method="GET" class="input">
                     <div class="input-container">
                         <input type="hidden" name="cmd" value="search">
                         <input type="text" id="input_name" class="input_name" name=name placeholder="고객 이름">
