@@ -185,3 +185,10 @@ tbody tr {
   color: white;
   font-weight: 500;
 }
+
+.content__title{
+  text-align: left;
+  margin:2rem 4rem;
+  font-weight: 700;
+  font-size: 2rem;
+}
