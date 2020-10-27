@@ -1,19 +1,10 @@
 from flask import Flask, render_template, session, url_for, request, redirect
 import mariadb
-from sql import show_res, show_cus, show_staff
+from sql import show_res, show_cus, show_staff, get_conn
 
 app = Flask(__name__)
 app.debug = True
 app.secret_key = b'aaa!111/'
-
-
-def get_conn():
-    conn = mariadb.connect(user="root",
-                           password="000000",
-                           host="193.123.233.236",
-                           port=3306,
-                           database="Petland")
-    return conn
 
 
 def user(form_id, form_passwd):
@@ -57,7 +48,7 @@ def login():
                 print(session['user'])
                 return """
                     <script> alert("안녕하세요~ {}님");
-                    location.href="/form"
+                    location.href="/reservation"
                     </script>
                 """.format(id)
                 # return redirect(url_for('base'))
@@ -79,7 +70,7 @@ def logout():
     return redirect(url_for('form'))
 
 
-@app.route('/form', methods=['GET', 'POST'])
+@app.route('/reservation', methods=['GET', 'POST'])
 def form():
     if request.method == 'GET':
 
